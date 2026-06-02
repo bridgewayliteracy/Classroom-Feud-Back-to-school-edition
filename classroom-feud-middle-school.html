@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classroom Feud: Middle School Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #E5A800;
+    --blue-dark: #0a1628;
+    --blue-mid: #112244;
+    --blue-light: #1a3366;
+    --red: #cc2200;
+    --red-bright: #ff3311;
+    --white: #ffffff;
+    --off-white: #f5f0e8;
+    --green: #00aa44;
+    --strike-red: #ff2200;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Barlow Condensed', sans-serif;
+    background: var(--blue-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--white);
+  }
+
+  /* SCREEN MANAGEMENT */
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+
+  /* ========== TITLE SCREEN ========== */
+  #title-screen {
+    background: radial-gradient(ellipse at center, #1a3366 0%, #0a1628 70%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #title-screen::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,215,0,0.03) 40px,
+      rgba(255,215,0,0.03) 80px
+    );
+    animation: patternMove 20s linear infinite;
+  }
+
+  @keyframes patternMove { to { transform: translate(80px, 80px); } }
+
+  .title-badge {
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(12px, 2vw, 16px);
+    letter-spacing: 4px;
+    padding: 8px 24px;
+    margin-bottom: 16px;
+    clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0% 50%);
+    text-transform: uppercase;
+  }
+
+  .title-main {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(52px, 10vw, 120px);
+    line-height: 0.9;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    background: linear-gradient(180deg, #fff 0%, #FFD700 50%, #E5A800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 20px rgba(255,215,0,0.4));
+    position: relative;
+    z-index: 1;
+  }
+
+  .title-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(18px, 3vw, 28px);
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--off-white);
+    margin-top: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .title-divider {
+    width: 200px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 24px auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: var(--blue-dark);
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    padding: 18px 60px;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(12px 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0% 50%);
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1;
+    margin-top: 16px;
+    box-shadow: 0 8px 30px rgba(255,215,0,0.4);
+  }
+
+  .btn-start:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(255,215,0,0.6);
+  }
+
+  /* ========== GAME SCREEN ========== */
+  #game-screen {
+    background: radial-gradient(ellipse at top, #1a3366 0%, #0a1628 60%);
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  /* Header */
+  .game-header {
+    width: 100%;
+    background: linear-gradient(180deg, #0d1f44 0%, #0a1628 100%);
+    border-bottom: 3px solid var(--gold);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .game-title-small {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    background: linear-gradient(180deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+  }
+
+  .round-indicator {
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-family: 'Anton', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 6px 20px;
+    clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0% 50%);
+  }
+
+  /* Scoreboard */
+  .scoreboard {
+    width: 100%;
+    display: flex;
+    gap: 0;
+    background: var(--blue-mid);
+    border-bottom: 2px solid rgba(255,215,0,0.3);
+  }
+
+  .team-score {
+    flex: 1;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .team-score.team1 { border-right: 1px solid rgba(255,215,0,0.2); }
+
+  .team-name-display {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(16px, 3vw, 22px);
+    letter-spacing: 1px;
+  }
+
+  .team1 .team-name-display { color: #66aaff; }
+  .team2 .team-name-display { color: #ff6666; }
+
+  .score-value {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(32px, 5vw, 48px);
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  /* Strikes */
+  .strikes-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .strike-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+  }
+
+  .strike-marks {
+    display: flex;
+    gap: 8px;
+  }
+
+  .strike-x {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    color: transparent;
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .strike-x.active {
+    border-color: var(--strike-red);
+    color: var(--strike-red);
+    background: rgba(204,34,0,0.2);
+    animation: strikeFlash 0.4s ease;
+  }
+
+  @keyframes strikeFlash {
+    0% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+
+  /* Main game area */
+  .game-main {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Question box */
+  .question-box {
+    background: linear-gradient(135deg, #1a3366 0%, #112244 100%);
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    padding: 20px 28px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,215,0,0.1);
+  }
+
+  .question-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .question-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+  }
+
+  /* Answer board */
+  .answer-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .answer-tile {
+    background: linear-gradient(135deg, #1a3366 0%, #0f2050 100%);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+  }
+
+  .answer-tile:hover:not(.revealed) {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #224488 0%, #1a3366 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  .answer-tile.revealed {
+    background: linear-gradient(135deg, #1a5c2e 0%, #0f3d1e 100%);
+    border-color: var(--green);
+    cursor: default;
+    animation: revealPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes revealPop {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    60% { transform: scale(1.03); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .tile-number {
+    width: 48px;
+    height: 100%;
+    min-height: 70px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255,215,0,0.2);
+  }
+
+  .revealed .tile-number {
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,0.7);
+    border-right-color: rgba(255,255,255,0.1);
+  }
+
+  .tile-content {
+    flex: 1;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .tile-answer {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(15px, 2.5vw, 20px);
+    font-weight: 700;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tile-hidden .tile-answer {
+    color: transparent;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    width: 80%;
+    height: 20px;
+  }
+
+  .tile-points {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .tile-hidden .tile-points { display: none; }
+
+  /* Round points pot */
+  .round-pot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 16px;
+  }
+
+  .pot-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+  }
+
+  .pot-value {
+    font-family: 'Anton', sans-serif;
+    font-size: 32px;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 20px;
+    background: rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(255,215,0,0.2);
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: 2px solid;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--blue-dark);
+  }
+
+  .btn-gold:hover { background: #ffe033; box-shadow: 0 4px 16px rgba(255,215,0,0.4); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: var(--white);
+  }
+
+  .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+
+  .btn-red {
+    background: transparent;
+    border-color: var(--red);
+    color: var(--red-bright);
+  }
+
+  .btn-red:hover { background: rgba(204,34,0,0.2); transform: translateY(-1px); }
+
+  .btn-blue {
+    background: rgba(102,170,255,0.15);
+    border-color: #66aaff;
+    color: #66aaff;
+  }
+
+  .btn-blue:hover { background: rgba(102,170,255,0.25); transform: translateY(-1px); }
+
+  .btn-pinkred {
+    background: rgba(255,102,102,0.15);
+    border-color: #ff6666;
+    color: #ff6666;
+  }
+
+  .btn-pinkred:hover { background: rgba(255,102,102,0.25); transform: translateY(-1px); }
+
+  .btn-green {
+    background: rgba(0,170,68,0.15);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .btn-green:hover { background: rgba(0,170,68,0.25); transform: translateY(-1px); }
+
+  /* ========== STEAL OVERLAY ========== */
+  .steal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .steal-overlay.active { display: flex; }
+
+  .steal-box {
+    background: linear-gradient(135deg, #1a0a00, #330000);
+    border: 3px solid var(--red-bright);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 60px rgba(255,51,17,0.4);
+    animation: stealPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes stealPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .steal-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 52px;
+    color: var(--red-bright);
+    letter-spacing: 4px;
+    text-shadow: 0 0 30px rgba(255,51,17,0.8);
+    margin-bottom: 8px;
+  }
+
+  .steal-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 28px;
+    line-height: 1.4;
+  }
+
+  .steal-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ========== WIN OVERLAY ========== */
+  .win-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .win-overlay.active { display: flex; }
+
+  .win-box {
+    text-align: center;
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .win-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .win-team {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .win-score {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(32px, 6vw, 60px);
+    color: var(--gold);
+    margin-bottom: 32px;
+    text-shadow: 0 0 30px rgba(255,215,0,0.6);
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 14px;
+    top: -20px;
+    animation: confettiFall linear forwards;
+    z-index: 150;
+  }
+
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ========== ROUND TRANSITION ========== */
+  .round-transition {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .round-transition.active { display: flex; }
+
+  .rt-number {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(80px, 15vw, 160px);
+    background: linear-gradient(180deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    animation: rtPop 0.5s ease;
+  }
+
+  @keyframes rtPop {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .rt-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* Setup Screen */
+  #setup-screen {
+    background: radial-gradient(ellipse at center, #1a3366 0%, #0a1628 70%);
+  }
+
+  .setup-card {
+    background: linear-gradient(135deg, #112244, #0d1a33);
+    border: 2px solid rgba(255,215,0,0.3);
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .setup-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 36px;
+    background: linear-gradient(180deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .setup-field {
+    margin-bottom: 20px;
+  }
+
+  .setup-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .setup-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,215,0,0.2);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .setup-input:focus { border-color: var(--gold); }
+  .setup-input::placeholder { color: rgba(255,255,255,0.3); }
+
+  .setup-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+    margin: 24px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .answer-board { grid-template-columns: 1fr; }
+    .scoreboard { flex-direction: column; }
+    .team-score.team1 { border-right: none; border-bottom: 1px solid rgba(255,215,0,0.2); }
+    .game-header { flex-direction: column; text-align: center; }
+    .controls { gap: 8px; }
+    .btn { font-size: 13px; padding: 9px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen" class="screen active">
+  <div class="title-badge">Middle School Edition</div>
+  <div class="title-main">Classroom<br>Feud</div>
+  <div class="title-sub">Back-to-School Edition</div>
+  <div class="title-divider"></div>
+  <button class="btn-start" onclick="showSetup()">PLAY NOW</button>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="screen">
+  <div class="setup-card">
+    <div class="setup-title">TEAM NAMES</div>
+    <div class="setup-field">
+      <label class="setup-label">Team 1 Name</label>
+      <input class="setup-input" id="team1-input" type="text" placeholder="e.g. Red Team" maxlength="20">
+    </div>
+    <div class="setup-field">
+      <label class="setup-label">Team 2 Name</label>
+      <input class="setup-input" id="team2-input" type="text" placeholder="e.g. Blue Team" maxlength="20">
+    </div>
+    <div class="setup-divider"></div>
+    <button class="btn btn-gold" style="width:100%; font-size:20px; padding:14px;" onclick="startGame()">LET'S PLAY!</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <div class="game-header">
+    <div class="game-title-small">CLASSROOM FEUD</div>
+    <div class="round-indicator" id="round-label">ROUND 1 OF 8</div>
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; color:rgba(255,255,255,0.5);">MIDDLE SCHOOL EDITION</div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="team-score team1">
+      <div>
+        <div class="team-name-display" id="t1-name">TEAM 1</div>
+        <div style="font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-top:2px;">TEAM 1</div>
+      </div>
+      <div class="score-value" id="t1-score">0</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 20px; gap:6px;">
+      <div class="strike-label">STRIKES</div>
+      <div class="strike-marks">
+        <div class="strike-x" id="s1">✗</div>
+        <div class="strike-x" id="s2">✗</div>
+        <div class="strike-x" id="s3">✗</div>
+      </div>
+    </div>
+    <div class="team-score team2" style="justify-content:flex-end; text-align:right;">
+      <div class="score-value" id="t2-score">0</div>
+      <div>
+        <div class="team-name-display" id="t2-name">TEAM 2</div>
+        <div style="font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-top:2px;">TEAM 2</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-main">
+    <div class="round-pot">
+      <div class="pot-label">Round Points</div>
+      <div class="pot-value" id="pot-display">0</div>
+    </div>
+
+    <div class="question-box">
+      <div class="question-label">Survey Says...</div>
+      <div class="question-text" id="question-text">Loading...</div>
+    </div>
+
+    <div class="answer-board" id="answer-board"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-red" onclick="addStrike()">+ STRIKE</button>
+    <button class="btn btn-outline" onclick="revealAll()">REVEAL ALL</button>
+    <button class="btn btn-blue" id="award-t1" onclick="awardPoints(0)">AWARD → T1</button>
+    <button class="btn btn-pinkred" id="award-t2" onclick="awardPoints(1)">AWARD → T2</button>
+    <button class="btn btn-green" onclick="nextRound()">NEXT ROUND →</button>
+    <button class="btn btn-outline" onclick="resetToTitle()" style="border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.4);">RESTART</button>
+  </div>
+</div>
+
+<!-- STEAL OVERLAY -->
+<div class="steal-overlay" id="steal-overlay">
+  <div class="steal-box">
+    <div class="steal-title">STEAL!</div>
+    <div class="steal-sub" id="steal-sub">3 strikes! The other team has a chance to steal the points. Can they guess an answer on the board?</div>
+    <div class="steal-btns">
+      <button class="btn btn-blue" id="steal-t1" onclick="resolveSteal(0)">✓ T1 STEALS</button>
+      <button class="btn btn-pinkred" id="steal-t2" onclick="resolveSteal(1)">✓ T2 STEALS</button>
+      <button class="btn btn-outline" onclick="closeSteal()">✗ NO STEAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND TRANSITION -->
+<div class="round-transition" id="round-transition">
+  <div class="rt-number" id="rt-number">2</div>
+  <div class="rt-label">Next Round</div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="win-overlay">
+  <div class="win-box">
+    <div class="win-label">🏆 Winner 🏆</div>
+    <div class="win-team" id="win-team-name">TEAM 1</div>
+    <div class="win-score" id="win-score">250 POINTS</div>
+    <button class="btn btn-gold" style="font-size:20px; padding:14px 40px;" onclick="resetToTitle()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script>
+const ROUNDS = [
+  {
+    question: "Name something students worry about before the first day of school.",
+    answers: [
+      { text: "Classes / Schedule", points: 35 },
+      { text: "Making Friends", points: 25 },
+      { text: "Teachers", points: 20 },
+      { text: "Getting Lost", points: 12 },
+      { text: "Grades", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students hope happens during the first week of school.",
+    answers: [
+      { text: "Make New Friends", points: 35 },
+      { text: "No Homework", points: 25 },
+      { text: "Fun Activities", points: 20 },
+      { text: "Nice Teachers", points: 12 },
+      { text: "Easy Classes", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students bring on the first day of school.",
+    answers: [
+      { text: "Backpack", points: 35 },
+      { text: "School Supplies", points: 25 },
+      { text: "Chromebook / Laptop", points: 20 },
+      { text: "Water Bottle", points: 12 },
+      { text: "Lunch / Snacks", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students are excited about this school year.",
+    answers: [
+      { text: "Seeing Friends", points: 35 },
+      { text: "Sports / Athletics", points: 25 },
+      { text: "Clubs & Activities", points: 20 },
+      { text: "New Teachers", points: 12 },
+      { text: "Field Trips", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students forget to bring to school.",
+    answers: [
+      { text: "Pencil / Pen", points: 35 },
+      { text: "Homework", points: 25 },
+      { text: "Chromebook / Charger", points: 20 },
+      { text: "Binder / Notebook", points: 12 },
+      { text: "Lunch / Lunch Money", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students do when the teacher isn't looking.",
+    answers: [
+      { text: "Talk to Friends", points: 40 },
+      { text: "Use Their Phone", points: 25 },
+      { text: "Pass Notes", points: 15 },
+      { text: "Joke Around", points: 12 },
+      { text: "Eat Snacks", points: 8 }
+    ]
+  },
+  {
+    question: "Name something teachers say every single day.",
+    answers: [
+      { text: "Be Quiet / Shh", points: 35 },
+      { text: "Pay Attention", points: 25 },
+      { text: "Take Out Your Notebook", points: 20 },
+      { text: "Turn It In", points: 12 },
+      { text: "Sit Down", points: 8 }
+    ]
+  },
+  {
+    question: "Name something students like most about a great teacher.",
+    answers: [
+      { text: "Funny / Has a Sense of Humor", points: 35 },
+      { text: "Nice / Kind", points: 25 },
+      { text: "Fair / Consistent", points: 20 },
+      { text: "Fun Activities / Games", points: 12 },
+      { text: "Helpful / Patient", points: 8 }
+    ]
+  }
+];
+
+let state = {
+  currentRound: 0,
+  scores: [0, 0],
+  strikes: 0,
+  roundPot: 0,
+  revealed: [],
+  teamNames: ["TEAM 1", "TEAM 2"],
+  playing: false
+};
+
+function showSetup() {
+  setScreen('setup-screen');
+}
+
+function startGame() {
+  const t1 = document.getElementById('team1-input').value.trim() || 'TEAM 1';
+  const t2 = document.getElementById('team2-input').value.trim() || 'TEAM 2';
+  state.teamNames = [t1.toUpperCase(), t2.toUpperCase()];
+  state.scores = [0, 0];
+  state.currentRound = 0;
+  state.playing = true;
+  updateTeamUI();
+  setScreen('game-screen');
+  loadRound(0);
+}
+
+function updateTeamUI() {
+  document.getElementById('t1-name').textContent = state.teamNames[0];
+  document.getElementById('t2-name').textContent = state.teamNames[1];
+  document.getElementById('award-t1').textContent = `AWARD → ${state.teamNames[0]}`;
+  document.getElementById('award-t2').textContent = `AWARD → ${state.teamNames[1]}`;
+  document.getElementById('steal-t1').textContent = `✓ ${state.teamNames[0]} STEALS`;
+  document.getElementById('steal-t2').textContent = `✓ ${state.teamNames[1]} STEALS`;
+}
+
+function loadRound(index) {
+  const round = ROUNDS[index];
+  state.strikes = 0;
+  state.roundPot = 0;
+  state.revealed = new Array(round.answers.length).fill(false);
+  updateStrikes();
+  updatePot();
+
+  document.getElementById('round-label').textContent = `ROUND ${index + 1} OF ${ROUNDS.length}`;
+  document.getElementById('question-text').textContent = round.question;
+
+  const board = document.getElementById('answer-board');
+  board.innerHTML = '';
+  round.answers.forEach((ans, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'answer-tile tile-hidden';
+    tile.id = `tile-${i}`;
+    tile.onclick = () => revealTile(i);
+    tile.innerHTML = `
+      <div class="tile-number">${i + 1}</div>
+      <div class="tile-content">
+        <div class="tile-answer">${ans.text}</div>
+        <div class="tile-points">${ans.points}</div>
+      </div>`;
+    board.appendChild(tile);
+  });
+
+  updateScores();
+}
+
+function revealTile(i) {
+  if (state.revealed[i]) return;
+  state.revealed[i] = true;
+  const round = ROUNDS[state.currentRound];
+  state.roundPot += round.answers[i].points;
+  updatePot();
+
+  const tile = document.getElementById(`tile-${i}`);
+  tile.classList.remove('tile-hidden');
+  tile.classList.add('revealed');
+}
+
+function revealAll() {
+  const round = ROUNDS[state.currentRound];
+  round.answers.forEach((_, i) => revealTile(i));
+}
+
+function addStrike() {
+  if (state.strikes >= 3) return;
+  state.strikes++;
+  updateStrikes();
+  if (state.strikes === 3) {
+    setTimeout(() => {
+      document.getElementById('steal-sub').innerHTML =
+        `3 strikes! <strong>${state.teamNames[1]}</strong> gets a chance to steal <strong>${state.roundPot} points</strong>. Can they name something on the board?`;
+      document.getElementById('steal-overlay').classList.add('active');
+    }, 500);
+  }
+}
+
+function updateStrikes() {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`s${i}`);
+    el.classList.toggle('active', i <= state.strikes);
+  }
+}
+
+function updatePot() {
+  document.getElementById('pot-display').textContent = state.roundPot;
+}
+
+function awardPoints(team) {
+  if (state.roundPot === 0) return;
+  state.scores[team] += state.roundPot;
+  updateScores();
+  state.roundPot = 0;
+  updatePot();
+}
+
+function updateScores() {
+  document.getElementById('t1-score').textContent = state.scores[0];
+  document.getElementById('t2-score').textContent = state.scores[1];
+}
+
+function resolveSteal(team) {
+  state.scores[team] += state.roundPot;
+  state.roundPot = 0;
+  updatePot();
+  updateScores();
+  closeSteal();
+  revealAll();
+}
+
+function closeSteal() {
+  document.getElementById('steal-overlay').classList.remove('active');
+}
+
+function nextRound() {
+  if (state.currentRound >= ROUNDS.length - 1) {
+    endGame();
+    return;
+  }
+  const next = state.currentRound + 1;
+  const rt = document.getElementById('round-transition');
+  document.getElementById('rt-number').textContent = next + 1;
+  rt.classList.add('active');
+  setTimeout(() => {
+    rt.classList.remove('active');
+    state.currentRound = next;
+    loadRound(next);
+  }, 1800);
+}
+
+function endGame() {
+  const winner = state.scores[0] >= state.scores[1] ? 0 : 1;
+  document.getElementById('win-team-name').textContent = state.teamNames[winner];
+  document.getElementById('win-score').textContent = `${state.scores[winner]} POINTS`;
+  document.getElementById('win-overlay').classList.add('active');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const colors = ['#FFD700','#ff3311','#66aaff','#00cc55','#ff66aa','#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+    piece.style.animationDelay = (Math.random() * 2) + 's';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(piece);
+    piece.addEventListener('animationend', () => piece.remove());
+  }
+}
+
+function resetToTitle() {
+  document.getElementById('win-overlay').classList.remove('active');
+  state = { currentRound: 0, scores: [0, 0], strikes: 0, roundPot: 0, revealed: [], teamNames: ['TEAM 1', 'TEAM 2'], playing: false };
+  setScreen('title-screen');
+}
+
+function setScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
